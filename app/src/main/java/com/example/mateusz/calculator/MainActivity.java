@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
 
     //operation variables
     private Double operand1 = null;
-    private Double operand2 = null;
     private String pendingOperation = "=";
 
     @Override
@@ -72,9 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 Button button = (Button) view;
                 String operation = button.getText().toString();
                 String value = newNumber.getText().toString();
-                if (value.length() != 0) {
-                    performOperation(value, operation);
+                try {
+                    Double doubleValue = Double.valueOf(value);
+                    performOperation(doubleValue, operation);
+                } catch (NumberFormatException e) {
+
+                    newNumber.setText("");
                 }
+
+
                 pendingOperation = operation;
                 displayOperation.setText(pendingOperation);
 
@@ -88,12 +93,12 @@ public class MainActivity extends AppCompatActivity {
         buttonPlus.setOnClickListener(operationListener);
     }
 
-    private void performOperation(String value, String operation) {
+    private void performOperation(Double value, String operation) {
 
         if (operand1 == null) {
-            operand1 = Double.valueOf(value);
+            operand1 = value;
         } else {
-            operand2 = Double.valueOf(value);
+            Double operand2 = value;
 
             if (pendingOperation.equals("=")) {
                 pendingOperation = operation;
@@ -121,14 +126,10 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
             }
-
         }
 
         result.setText(operand1.toString());
         newNumber.setText("");
 
-
     }
-
-
 }
