@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import static com.example.mateusz.calculator.R.id.operation;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText result;
@@ -15,7 +17,10 @@ public class MainActivity extends AppCompatActivity {
 
     //operation variables
     private Double operand1 = null;
-    private String pendingOperation = "=";
+    private String pendingOperation;
+    private boolean negative = false;
+    private static final String PENDING_OPERATION = "PendingOperation";
+    private static final String STATE_OPERAND1 = "Operand1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         result = (EditText) findViewById(R.id.result);
         newNumber = (EditText) findViewById(R.id.newNumber);
-        displayOperation = (TextView) findViewById(R.id.operation);
+        displayOperation = (TextView) findViewById(operation);
 
         Button button0 = (Button) findViewById(R.id.button0);
         Button button1 = (Button) findViewById(R.id.button1);
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Button buttonMultiply = (Button) findViewById(R.id.buttonMultiply);
         Button buttonMinus = (Button) findViewById(R.id.buttonMinus);
         Button buttonPlus = (Button) findViewById(R.id.buttonPlus);
+        Button buttonNeg = (Button) findViewById(R.id.buttonNeg);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
@@ -91,6 +97,36 @@ public class MainActivity extends AppCompatActivity {
         buttonMultiply.setOnClickListener(operationListener);
         buttonMinus.setOnClickListener(operationListener);
         buttonPlus.setOnClickListener(operationListener);
+
+        View.OnClickListener negListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String value = newNumber.getText().toString();
+
+                if (value.length() == 0) {
+                    newNumber.setText("-");
+
+                } else {
+
+                    try {
+                        Double doubleValue = Double.valueOf(value);
+                        doubleValue *= -1;
+                        newNumber.setText(doubleValue.toString());
+                    } catch (NumberFormatException e) {
+                        newNumber.setText("");
+
+
+                    }
+
+                }
+
+
+            }
+        };
+
+        buttonNeg.setOnClickListener(negListener);
+
     }
 
     private void performOperation(Double value, String operation) {
@@ -130,6 +166,26 @@ public class MainActivity extends AppCompatActivity {
 
         result.setText(operand1.toString());
         newNumber.setText("");
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(PENDING_OPERATION, displayOperation.getText().toString());
+        if (operand1 != null) {
+            outState.putDouble(STATE_OPERAND1, operand1);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String savedOperation;
+        savedOperation = savedInstanceState.getString(PENDING_OPERATION);
+        operand1 = savedInstanceState.getDouble(STATE_OPERAND1);
+        displayOperation.setText(savedOperation);
+        pendingOperation = savedOperation;
 
     }
 }
